@@ -26,7 +26,7 @@ export const createUser = async (req, res) => {
         return res.status(400).json({ error: 'Correo electrónico inválido.' });
     }
 
-    const [existing] = await pool.query('SELECT * FROM users WHERE rfc = ?', [rfc]);
+    const [existing] = await pool.query('SELECT id FROM users WHERE rfc = ?', [rfc]);
     if (existing.length > 0) {
         return res.status(409).json({ error: 'Ya existe un usuario con ese RFC.' });
     }
@@ -35,7 +35,7 @@ export const createUser = async (req, res) => {
     res.status(201).json({ message: 'Usuario creado exitosamente.' });
 };
 
-// PUT
+//PUT
 export const updateUser = async (req, res) => {
     const { id } = req.params;
     const { full_name, rfc, email, postal_code } = req.body;
@@ -52,7 +52,10 @@ export const updateUser = async (req, res) => {
         return res.status(400).json({ error: 'Correo electrónico inválido.' });
     }
 
-    const [currentUserResult] = await pool.query('SELECT * FROM users WHERE id = ?', [id]);
+    const [currentUserResult] = await pool.query(
+        'SELECT full_name, rfc, email, postal_code FROM users WHERE id = ?',
+        [id]
+    );
     if (currentUserResult.length === 0) {
         return res.status(404).json({ error: 'Usuario no encontrado.' });
     }
@@ -67,7 +70,10 @@ export const updateUser = async (req, res) => {
         return res.status(409).json({ error: 'No hay cambios en los datos para actualizar.' });
     }
 
-    const [existing] = await pool.query('SELECT * FROM users WHERE rfc = ? AND id != ?', [rfc, id]);
+    const [existing] = await pool.query(
+        'SELECT id FROM users WHERE rfc = ? AND id != ?',
+        [rfc, id]
+    );
     if (existing.length > 0) {
         return res.status(409).json({ error: 'Ya existe otro usuario con ese RFC.' });
     }
@@ -75,6 +81,7 @@ export const updateUser = async (req, res) => {
     const [result] = await pool.query(usersQuerys.updateUser, [full_name, rfc, email || null, postal_code, id]);
     res.json({ message: 'Usuario actualizado exitosamente.' });
 };
+
 
 
 // DELETE
