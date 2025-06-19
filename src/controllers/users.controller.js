@@ -10,6 +10,21 @@ export const getUsers = async (req, res) => {
     res.json(result);
 }
 
+
+//GETById
+export const getUserById = async (req, res) => {
+    const { id } = req.params;
+
+    const [result] = await pool.query(usersQuerys.getUserById, [id]);
+
+    if (result.length === 0) {
+        return res.status(404).json({ error: 'Usuario no encontrado.' });
+    }
+
+    res.json(result[0]);
+};
+
+
 // POST
 export const createUser = async (req, res) => {
     const { full_name, rfc, email, postal_code } = req.body;
